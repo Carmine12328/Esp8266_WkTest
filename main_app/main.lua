@@ -1,11 +1,14 @@
 local display = require "tm1640"
 local net = require "netmodule"
+local efx = require "effect"
 
 local mqtt_status = false
 local wifi_connect = false
 local dev_ID = "TEST" -- HOSTNAME
+local temp = 25
 local dataset = {}
 local mqtt_callbacks = {}
+
 
 dataset["smile"] = { 0x3C, 0x42, 0xA5, 0x81, 0xA5, 0x99, 0x42, 0x3C}
 dataset["cross"] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81}
@@ -15,6 +18,7 @@ print("- devId: "..dev_ID)
 display.init(7, 5)
 display.brightness(5)
 display.write(dataset["cross"])
+
 
 function reverseBits(a)
     local b = 0x80
@@ -75,6 +79,8 @@ function foo(T)
         print(topic .. " partial overflowed message: " .. data )
     end)
 
+    efx.wave_effect()
+
     m:connect('mqtt.asterix.cloud', 1883, 0, function(client)
     print("connected")
     dev_ID = "Node-"..string.sub(string.gsub(wifi.sta.getmac(), ":",""), 7)
@@ -86,6 +92,10 @@ function foo(T)
 
     tmr.alarm(0,10000, 1, function()
         m:publish("/radiolog/"..dev_ID.."/status", tmr.time(), 0, 0)
+    end)
+
+    tmr.alarm(0,15000, 1, function()
+        m:publish("/radiolog/"..dev_ID.."/status", temp, 0, 0)
     end)
 
     end,

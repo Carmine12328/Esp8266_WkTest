@@ -97,4 +97,4 @@ function Tm1640.init(mosi, sclk)
     dsp_ctrl(0)
 end
 
-return Tm1640
+return Tm1640   
